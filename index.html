@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Slope Stability &amp; Landslide Susceptibility — India</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- Subtle animated background -->
+<div class="terrain-bg-anim" aria-hidden="true">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+    <path d="M0 600 Q200 480 400 520 Q600 560 800 440 Q1000 320 1200 380 Q1320 410 1440 350 L1440 900 L0 900Z" fill="#22d97c"/>
+    <path d="M0 700 Q300 620 500 650 Q700 680 900 590 Q1100 500 1300 540 Q1380 560 1440 520 L1440 900 L0 900Z" fill="#0ff0c0"/>
+  </svg>
+</div>
+
+<div id="app">
+
+  <!-- ===== HEADER ===== -->
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="header-logo">⛰️</div>
+      <div class="header-titles">
+        <h1>SlopeIntel India</h1>
+        <p>Terrain Analysis · Soil Mapping · Landslide Susceptibility</p>
+      </div>
+    </div>
+    <div class="header-badge">
+      <div class="badge badge-green"><span class="pulse-dot"></span> Live Analysis</div>
+      <div class="badge badge-amber">🇮🇳 India Specific</div>
+    </div>
+  </header>
+
+  <!-- ===== NAV TABS ===== -->
+  <nav class="nav-tabs" role="tablist">
+    <button class="nav-tab active" onclick="switchTab('map')" data-tab="map" role="tab">
+      <span class="tab-icon">🗺️</span> India Region Map
+    </button>
+    <button class="nav-tab" onclick="switchTab('terrain')" data-tab="terrain" role="tab">
+      <span class="tab-icon">📐</span> Terrain Derivatives
+    </button>
+    <button class="nav-tab" onclick="switchTab('soil')" data-tab="soil" role="tab">
+      <span class="tab-icon">🪨</span> Soil Profiles
+    </button>
+    <button class="nav-tab" onclick="switchTab('susceptibility')" data-tab="susceptibility" role="tab">
+      <span class="tab-icon">📊</span> Susceptibility Analyser
+    </button>
+    <button class="nav-tab" onclick="switchTab('infra')" data-tab="infra" role="tab">
+      <span class="tab-icon">🏗️</span> Infrastructure Guidance
+    </button>
+  </nav>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content">
+
+    <!-- ============================================================
+         MODULE 1 — India Region Map
+         ============================================================ -->
+    <section id="panel-map" class="module-panel active" role="tabpanel">
+      <div class="section-header">
+        <div>
+          <div class="section-title"><span class="icon">🗺️</span> India Landslide Risk Map</div>
+          <p class="section-desc">Click any state/UT to load its detailed slope stability, soil type, and susceptibility profile. States are colour-coded by landslide risk zone (GSI/NRSC classification).</p>
+        </div>
+      </div>
+
+      <div class="grid-map">
+        <!-- SVG MAP -->
+        <div class="map-container" id="mapContainer">
+          <div class="map-tooltip" id="mapTooltip"></div>
+          <svg id="indiaMap" viewBox="80 40 520 580" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+
+        <!-- STATE INFO PANEL -->
+        <div class="state-info-card" id="stateInfoCard">
+          <div class="state-info-header" id="stateInfoHeader">
+            <div class="state-name" id="stateName">Select a State</div>
+            <div class="state-region" id="stateRegion">Click on the map to load state data</div>
+          </div>
+          <div class="state-info-body" id="stateInfoBody">
+            <div class="state-placeholder">
+              <div class="ph-icon">🗺️</div>
+              <div>Click any state on the map to view its detailed slope stability and soil profile data.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="map-legend" style="margin-top:16px;">
+        <div class="legend-item"><span class="legend-dot" style="background:#b91c1c;"></span>Very High Risk</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#c2410c;"></span>High Risk</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#b45309;"></span>Moderate Risk</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#166534;"></span>Low Risk</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#0369a1;"></span>Very Low Risk</div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="grid-4" style="margin-top:20px;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon icon-red">⚠️</div>
+            <div class="card-title">High-Risk States</div>
+          </div>
+          <div style="font-size:32px;font-weight:800;color:var(--accent-red);font-family:var(--font-mono);">14</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">States with High/Very High susceptibility</div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon icon-amber">🏔️</div>
+            <div class="card-title">Area Prone</div>
+          </div>
+          <div style="font-size:32px;font-weight:800;color:var(--accent-amber);font-family:var(--font-mono);">12.6%</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Of India's geographical area</div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon icon-blue">🌧️</div>
+            <div class="card-title">Primary Trigger</div>
+          </div>
+          <div style="font-size:32px;font-weight:800;color:var(--accent-blue);font-family:var(--font-mono);">Rain</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Monsoon rainfall — main landslide trigger</div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon icon-green">🌱</div>
+            <div class="card-title">Soil Types</div>
+          </div>
+          <div style="font-size:32px;font-weight:800;color:var(--accent-green);font-family:var(--font-mono);">8</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Major NBSS&LUP soil classifications</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         MODULE 2 — Terrain Derivative Features
+         ============================================================ -->
+    <section id="panel-terrain" class="module-panel" role="tabpanel">
+      <div class="section-header">
+        <div>
+          <div class="section-title"><span class="icon">📐</span> Terrain Derivative Features</div>
+          <p class="section-desc">Adjust hillslope parameters to compute terrain derivatives in real time. Includes Factor of Safety (FS), TWI, curvature, and hillshade visualisation.</p>
+        </div>
+      </div>
+
+      <div class="grid-terrain">
+        <!-- Controls -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon icon-teal">🎛️</div>
+              <div class="card-title">Hillslope Parameters</div>
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-label">
+                <span class="slider-name" data-tip="Angle of slope from horizontal">Slope Angle (β)</span>
+                <span class="slider-val" id="vSlope">25°</span>
+              </div>
+              <input type="range" id="sSlope" min="1" max="80" value="25" oninput="updateTerrain()">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-label">
+                <span class="slider-name" data-tip="Soil depth to failure plane">Soil Depth (z)</span>
+                <span class="slider-val" id="vDepth">2.0 m</span>
+              </div>
+              <input type="range" id="sDepth" min="0.5" max="10" step="0.1" value="2" oninput="updateTerrain()">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-label">
+                <span class="slider-name" data-tip="Soil cohesion in kPa">Cohesion (c)</span>
+                <span class="slider-val" id="vCohesion">10 kPa</span>
+              </div>
+              <input type="range" id="sCohesion" min="0" max="80" value="10" oninput="updateTerrain()">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-label">
+                <span class="slider-name" data-tip="Internal friction angle of soil">Friction Angle (φ)</span>
+                <span class="slider-val" id="vFriction">30°</span>
+              </div>
+              <input type="range" id="sFriction" min="5" max="45" value="30" oninput="updateTerrain()">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-label">
+                <span class="slider-name" data-tip="Unit weight of soil (kN/m³)">Unit Weight (γ)</span>
+                <span class="slider-val" id="vGamma">18 kN/m³</span>
+              </div>
+              <input type="range" id="sGamma" min="12" max="25" step="0.5" value="18" oninput="updateTerrain()">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-label">
+                <span class="slider-name" data-tip="Depth to water table">Water Table Depth (hw)</span>
+                <span class="slider-val" id="vWater">1.0 m</span>
+              </div>
+              <input type="range" id="sWater" min="0" max="10" step="0.1" value="1" oninput="updateTerrain()">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-label">
+                <span class="slider-name" data-tip="Upstream contributing area proxy">Contributing Area (A)</span>
+                <span class="slider-val" id="vArea">500 m²</span>
+              </div>
+              <input type="range" id="sArea" min="10" max="5000" step="10" value="500" oninput="updateTerrain()">
+            </div>
+
+            <div class="form-group" style="margin-top:10px;">
+              <label class="form-label">Slope Aspect Direction</label>
+              <select id="sAspect" onchange="updateTerrain()">
+                <option value="N">North (0°)</option>
+                <option value="NE">North-East (45°)</option>
+                <option value="E">East (90°)</option>
+                <option value="SE">South-East (135°)</option>
+                <option value="S" selected>South (180°)</option>
+                <option value="SW">South-West (225°)</option>
+                <option value="W">West (270°)</option>
+                <option value="NW">North-West (315°)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Curvature Type</label>
+              <select id="sCurvature" onchange="updateTerrain()">
+                <option value="planar">Planar (neutral)</option>
+                <option value="concave" selected>Concave (flow converging)</option>
+                <option value="convex">Convex (flow diverging)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Formula Box -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon icon-purple">∑</div>
+              <div class="card-title">Factor of Safety Formula</div>
+            </div>
+            <div class="formula-box">
+              <span class="formula-var">FS</span> <span class="formula-op">=</span>
+              (<span class="formula-var">c</span> <span class="formula-op">+</span> (<span class="formula-var">γ</span><span class="formula-op">·</span><span class="formula-var">z</span><span class="formula-op">·</span>cos²β<span class="formula-op">·</span>tan<span class="formula-var">φ</span>)) <span class="formula-op">/</span>
+              (<span class="formula-var">γ</span><span class="formula-op">·</span><span class="formula-var">z</span><span class="formula-op">·</span>sinβ<span class="formula-op">·</span>cosβ)
+            </div>
+            <div class="formula-box">
+              <span class="formula-var">TWI</span> <span class="formula-op">=</span>
+              ln(<span class="formula-var">A</span> <span class="formula-op">/</span> tan(<span class="formula-var">β</span>))
+            </div>
+          </div>
+        </div>
+
+        <!-- Visuals + Metrics -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <!-- Terrain Canvas -->
+          <div class="canvas-wrap" style="height:240px;">
+            <span class="canvas-label">3D Hillslope Cross-Section</span>
+            <canvas id="terrainCanvas" width="700" height="240"></canvas>
+          </div>
+
+          <!-- Hillshade Canvas -->
+          <div class="canvas-wrap" style="height:160px;">
+            <span class="canvas-label">Hillshade / Illumination Model</span>
+            <canvas id="hillshadeCanvas" width="700" height="160"></canvas>
+          </div>
+
+          <!-- Metrics -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon icon-green">📊</div>
+              <div class="card-title">Computed Terrain Derivatives</div>
+            </div>
+            <div class="metric-grid" id="terrainMetrics">
+              <div class="metric-card" id="mc-fs">
+                <div class="metric-label">Factor of Safety</div>
+                <div><span class="metric-value" id="mv-fs">—</span></div>
+                <div class="metric-status" id="ms-fs">—</div>
+              </div>
+              <div class="metric-card" id="mc-twi">
+                <div class="metric-label">TWI</div>
+                <div><span class="metric-value" id="mv-twi">—</span></div>
+                <div class="metric-status status-neutral">Topographic Wetness Index</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Slope Gradient</div>
+                <div><span class="metric-value" id="mv-slope">—</span><span class="metric-unit">°</span></div>
+                <div class="metric-status status-neutral" id="ms-slope">—</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Aspect</div>
+                <div><span class="metric-value" id="mv-aspect">—</span></div>
+                <div class="metric-status status-neutral">Slope-facing direction</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Curvature Type</div>
+                <div><span class="metric-value" id="mv-curv" style="font-size:14px;">—</span></div>
+                <div class="metric-status status-neutral" id="ms-curv">—</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Pore Water Pressure</div>
+                <div><span class="metric-value" id="mv-pore">—</span><span class="metric-unit">kPa</span></div>
+                <div class="metric-status status-neutral">u = γw·hw·cos²β</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Critical Slope Angle</div>
+                <div><span class="metric-value" id="mv-crit">—</span><span class="metric-unit">°</span></div>
+                <div class="metric-status status-neutral">arctan(tanφ + c/γz)</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Shear Stress</div>
+                <div><span class="metric-value" id="mv-shear">—</span><span class="metric-unit">kPa</span></div>
+                <div class="metric-status status-neutral">τ = γ·z·sinβ·cosβ</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slope stability interpretation -->
+          <div id="fsInterpretBox" class="info-box note">
+            <span class="info-box-icon">ℹ️</span>
+            <div class="info-box-text">Adjust the sliders to compute the <strong>Factor of Safety</strong>. FS &gt; 1.5 = Stable, 1.0–1.5 = Marginally stable, &lt; 1.0 = Failure.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         MODULE 3 — Soil Profiles
+         ============================================================ -->
+    <section id="panel-soil" class="module-panel" role="tabpanel">
+      <div class="section-header">
+        <div>
+          <div class="section-title"><span class="icon">🪨</span> India Soil Mapping &amp; Profile Predictor</div>
+          <p class="section-desc">Select a soil type or Indian region to view the full NBSS&LUP soil profile, texture triangle, horizon characteristics, and geotechnical properties.</p>
+        </div>
+      </div>
+
+      <div class="grid-soil">
+        <!-- Selector + Texture Input -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon icon-amber">🌍</div>
+              <div class="card-title">Soil Type Selector</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Select by Soil Type (NBSS&LUP)</label>
+              <select id="soilTypeSelect" onchange="loadSoilProfile()">
+                <option value="alluvial">Alluvial Soils</option>
+                <option value="black">Black Soils (Regur / Vertisols)</option>
+                <option value="red_yellow">Red &amp; Yellow Soils</option>
+                <option value="laterite">Laterite Soils</option>
+                <option value="arid">Arid / Desert Soils</option>
+                <option value="mountain">Mountain / Forest Soils</option>
+                <option value="saline">Saline &amp; Alkaline Soils</option>
+                <option value="peaty">Peaty &amp; Marshy Soils</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">OR Select by State</label>
+              <select id="stateForSoil" onchange="loadSoilFromState()">
+                <option value="">— Choose State —</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Texture Triangle -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon icon-orange">△</div>
+              <div class="card-title">Soil Texture Triangle</div>
+            </div>
+            <div class="texture-inputs">
+              <div class="texture-input-group">
+                <label>Sand %</label>
+                <input type="number" id="tSand" min="0" max="100" value="40" oninput="updateTextureTriangle()">
+              </div>
+              <div class="texture-input-group">
+                <label>Silt %</label>
+                <input type="number" id="tSilt" min="0" max="100" value="35" oninput="updateTextureTriangle()">
+              </div>
+              <div class="texture-input-group">
+                <label>Clay %</label>
+                <input type="number" id="tClay" min="0" max="100" value="25" oninput="updateTextureTriangle()">
+              </div>
+            </div>
+            <div class="canvas-wrap">
+              <canvas id="textureCanvas" width="290" height="260"></canvas>
+            </div>
+            <div style="margin-top:8px;text-align:center;font-size:12px;color:var(--text-secondary);">
+              Texture Class: <strong id="textureClass" style="color:var(--accent-teal);">—</strong>
+            </div>
+          </div>
+
+          <!-- USCS Classification -->
+          <div class="card" id="uscsCard">
+            <div class="card-header">
+              <div class="card-icon icon-blue">🔬</div>
+              <div class="card-title">Engineering Classification</div>
+            </div>
+            <div class="info-row">
+              <span class="info-label">USCS Symbol</span>
+              <span class="info-value" id="uscsSymbol">—</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">USCS Description</span>
+              <span class="info-value" id="uscsDesc">—</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">USDA Order</span>
+              <span class="info-value" id="usdaOrder">—</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Permeability Class</span>
+              <span class="info-value" id="permClass">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Horizons + Properties -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <!-- Soil Name + Distribution -->
+          <div class="card" id="soilNameCard">
+            <div class="card-header">
+              <div class="card-icon icon-amber">🗺️</div>
+              <div class="card-title" id="soilCardTitle">Alluvial Soils</div>
+            </div>
+            <div class="info-box note" style="margin-bottom:10px;">
+              <span class="info-box-icon">📍</span>
+              <div class="info-box-text"><strong id="soilDistrib">—</strong></div>
+            </div>
+            <div class="tags" id="soilStateTags"></div>
+          </div>
+
+          <!-- Soil Horizons -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon icon-orange">🧱</div>
+              <div class="card-title">Soil Horizon Profile</div>
+            </div>
+            <div id="soilHorizons"></div>
+          </div>
+
+          <!-- Geotechnical Properties Table -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon icon-green">⚙️</div>
+              <div class="card-title">Geotechnical Properties</div>
+            </div>
+            <table class="prop-table" id="geoPropsTable">
+              <thead>
+                <tr>
+                  <th>Property</th>
+                  <th>Symbol</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody id="geoPropsBody"></tbody>
+            </table>
+          </div>
+
+          <!-- Slope Stability Implication -->
+          <div class="card" id="soilImplCard">
+            <div class="card-header">
+              <div class="card-icon icon-red">⚠️</div>
+              <div class="card-title">Slope Stability Implications</div>
+            </div>
+            <div id="soilImplText" style="font-size:13px;color:var(--text-secondary);line-height:1.8;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         MODULE 4 — Landslide Susceptibility Analyser
+         ============================================================ -->
+    <section id="panel-susceptibility" class="module-panel" role="tabpanel">
+      <div class="section-header">
+        <div>
+          <div class="section-title"><span class="icon">📊</span> Landslide Susceptibility Analyser</div>
+          <p class="section-desc">Multi-factor weighted scoring model (GSI/NRSC-based). Adjust conditioning factors to compute susceptibility score, risk zone, and factor breakdown.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Input Factors -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon icon-red">🔢</div>
+              <div class="card-title">Conditioning Factors</div>
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-label">
+                <span class="slider-name" data-tip="Slope angle in degrees — primary driver of gravitational instability">Slope Angle</span>
+                <span class="slider-val" id="sv-slope">25°</span>
+              </div>
+              <input type="range" id="ss-slope" min="0" max="80" value="25" oninput="updateSusceptibility()">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-label">
+                <span class="slider-name" data-tip="Topographic Wetness Index — moisture accumulation potential">TWI Score</span>
+                <span class="slider-val" id="sv-twi">5.0</span>
+              </div>
+              <input type="range" id="ss-twi" min="0" max="15" step="0.1" value="5" oninput="updateSusceptibility()">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-label">
+                <span class="slider-name" data-tip="Annual average rainfall in mm">Annual Rainfall (mm)</span>
+                <span class="slider-val" id="sv-rain">1500 mm</span>
+              </div>
+              <input type="range" id="ss-rain" min="100" max="5000" step="50" value="1500" oninput="updateSusceptibility()">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Lithology / Rock Type</label>
+              <select id="ss-litho" onchange="updateSusceptibility()">
+                <option value="1">Unconsolidated sediments (high risk)</option>
+                <option value="2">Weathered shale / phyllite</option>
+                <option value="3" selected>Crystalline / metamorphic</option>
+                <option value="4">Basalt / Deccan trap</option>
+                <option value="5">Granite / gneiss (low risk)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Land Cover / NDVI Proxy</label>
+              <select id="ss-ndvi" onchange="updateSusceptibility()">
+                <option value="1">Bare land / mining / construction</option>
+                <option value="2" selected>Sparse vegetation / degraded</option>
+                <option value="3">Agricultural land</option>
+                <option value="4">Moderate forest / shrubs</option>
+                <option value="5">Dense forest (protective)</option>
+              </select>
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-label">
+                <span class="slider-name" data-tip="Distance to nearest active fault or lineament in km">Distance to Fault (km)</span>
+                <span class="slider-val" id="sv-fault">10 km</span>
+              </div>
+              <input type="range" id="ss-fault" min="0" max="50" value="10" oninput="updateSusceptibility()">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-label">
+                <span class="slider-name" data-tip="Proximity to river or stream — base-erosion trigger">Distance to Drainage (m)</span>
+                <span class="slider-val" id="sv-drain">200 m</span>
+              </div>
+              <input type="range" id="ss-drain" min="0" max="2000" step="10" value="200" oninput="updateSusceptibility()">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Soil Type</label>
+              <select id="ss-soil" onchange="updateSusceptibility()">
+                <option value="mountain">Mountain / Forest Soils</option>
+                <option value="laterite" selected>Laterite Soils</option>
+                <option value="red_yellow">Red &amp; Yellow Soils</option>
+                <option value="alluvial">Alluvial Soils</option>
+                <option value="black">Black Soils (Vertisols)</option>
+                <option value="arid">Arid / Desert Soils</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Seismic Zone (IS 1893)</label>
+              <select id="ss-seismic" onchange="updateSusceptibility()">
+                <option value="2">Zone II — Low</option>
+                <option value="3" selected>Zone III — Moderate</option>
+                <option value="4">Zone IV — High</option>
+                <option value="5">Zone V — Very High</option>
+              </select>
+            </div>
+
+            <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="updateSusceptibility()">
+              🔄 Recompute Analysis
+            </button>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <!-- Gauge -->
+          <div class="card" style="text-align:center;">
+            <div class="card-header" style="justify-content:center;">
+              <div class="card-icon icon-red">🎯</div>
+              <div class="card-title">Susceptibility Score</div>
+            </div>
+            <div class="gauge-wrap">
+              <canvas id="gaugeCanvas" width="220" height="130"></canvas>
+              <div class="gauge-score" id="gaugeScore">—</div>
+              <div class="gauge-zone" id="gaugeZone">—</div>
+              <div class="gauge-labels">
+                <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Factor Breakdown -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon icon-blue">📉</div>
+              <div class="card-title">Factor Contribution Breakdown</div>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="factorChart" width="500" height="240"></canvas>
+            </div>
+          </div>
+
+          <!-- Interpretation -->
+          <div class="card" id="susceptInterpCard">
+            <div class="card-header">
+              <div class="card-icon icon-amber">📋</div>
+              <div class="card-title">Risk Interpretation</div>
+            </div>
+            <div id="susceptInterp" style="font-size:13px;color:var(--text-secondary);line-height:1.8;"></div>
+          </div>
+
+          <!-- Historical Reference Table -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon icon-purple">📚</div>
+              <div class="card-title">Historical Landslide Reference (India)</div>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="data-table" id="histTable">
+                <thead>
+                  <tr>
+                    <th>Region</th>
+                    <th>GSI Zone</th>
+                    <th>Major Trigger</th>
+                    <th>Avg Slope</th>
+                    <th>Risk</th>
+                  </tr>
+                </thead>
+                <tbody id="histTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         MODULE 5 — Infrastructure Guidance
+         ============================================================ -->
+    <section id="panel-infra" class="module-panel" role="tabpanel">
+      <div class="section-header">
+        <div>
+          <div class="section-title"><span class="icon">🏗️</span> Infrastructure Guidance Engine</div>
+          <p class="section-desc">Based on computed susceptibility, soil type, and terrain parameters, this engine recommends appropriate foundation types, slope stabilisation measures, and infrastructure standards.</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="switchTab('susceptibility')">← Go to Analyser</button>
+      </div>
+
+      <!-- Summary Banner -->
+      <div id="infraSummaryBanner" class="info-box note" style="margin-bottom:20px;">
+        <span class="info-box-icon">🏗️</span>
+        <div class="info-box-text">Run the <strong>Susceptibility Analyser</strong> first, then return here for tailored infrastructure guidance based on your computed risk score.</div>
+      </div>
+
+      <!-- Guidance Cards Grid -->
+      <div class="grid-3" id="infraCardsGrid" style="margin-bottom:20px;"></div>
+
+      <!-- Mitigation Priority Table -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <div class="card-icon icon-red">🛡️</div>
+          <div class="card-title">Mitigation Priority Matrix</div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table" id="mitigationTable">
+            <thead>
+              <tr>
+                <th>Measure</th>
+                <th>Applicable When</th>
+                <th>Priority</th>
+                <th>Estimated Cost Range</th>
+                <th>Effectiveness</th>
+              </tr>
+            </thead>
+            <tbody id="mitigationBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Code & Standards Reference -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon icon-blue">📜</div>
+            <div class="card-title">Applicable Indian Standards &amp; Codes</div>
+          </div>
+          <ul class="infra-list">
+            <li>IS 1893 — Seismic design criteria for structures</li>
+            <li>IS 6403 — Bearing capacity of shallow foundations</li>
+            <li>IS 2911 — Design of pile foundations</li>
+            <li>IS 7894 — Stability of earth dams and embankments</li>
+            <li>IS 14448 — Use of geotextiles in civil engineering</li>
+            <li>IS 11594 — Slope protection techniques</li>
+            <li>IRC:SP:48 — Guidelines for hill road construction</li>
+            <li>NBC 2016 — National Building Code (hazard-zone restrictions)</li>
+            <li>NDMA Guidelines — Landslide hazard zonation</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon icon-green">🌿</div>
+            <div class="card-title">Bio-Engineering &amp; Nature-Based Solutions</div>
+          </div>
+          <ul class="infra-list">
+            <li>Contour bunding with vetiver grass strips (Chrysopogon zizanioides)</li>
+            <li>Bamboo pile reinforcement on shallow slip planes</li>
+            <li>Live fascine / brush-layering on steep soil slopes</li>
+            <li>Tree root zone reinforcement with indigenous species</li>
+            <li>Check dams in drainage channels to reduce erosion</li>
+            <li>Terrace farming with grass-lined risers on agricultural slopes</li>
+            <li>Reforestation of degraded landslide scarps</li>
+            <li>Micro-watershed management for reducing runoff velocity</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="app-footer">
+    <div>SlopeIntel India · Terrain Derivative Features &amp; Landslide Susceptibility</div>
+    <div class="footer-sources">
+      <span>📚 GSI — Geological Survey of India</span>
+      <span>🌍 NBSS&amp;LUP — Soil Classification</span>
+      <span>🛰️ NRSC/ISRO — Landslide Atlas</span>
+      <span>🏛️ NDMA — Hazard Zonation</span>
+    </div>
+  </footer>
+
+</div><!-- end #app -->
+
+<script src="app.js"></script>
+</body>
+</html>
